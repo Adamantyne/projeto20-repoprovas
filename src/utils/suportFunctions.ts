@@ -1,10 +1,12 @@
-//import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 //import Cryptr from "cryptr";
 import dotenv from "dotenv";
 
+import userRepository from "../repositories/userRepository.js";
+
 interface JWTData {
   email: string;
-  id: number
+  id: number;
 }
 
 dotenv.config();
@@ -21,21 +23,38 @@ export function throwErr(
   throw { type, message };
 }
 
-// export function createToken(data: {}) {
-//   const token = jwt.sign(data, process.env.JWT_SECRET);
-//   return token;
-// }
+export function createToken(data: {}) {
+  const token = jwt.sign(data, process.env.JWT_SECRET);
+  return token;
+}
 
-// export function validateToken(token: string) {
-//   try {
-//     const jwtData = jwt.verify(token, process.env.JWT_SECRET);
-//     if (JWTDataValidate(jwtData)) {
-//       return jwtData.email;
-//     }
-//   } catch (error) {
-//     throwErr("unauthorized","Invalid Token");
-//   }
-// }
+export function validateToken(token: string) {
+  try {
+    const jwtData = jwt.verify(token, process.env.JWT_SECRET);
+    if (JWTDataValidate(jwtData)) {
+      return jwtData;
+    }
+  } catch (error) {
+    throwErr("unauthorized", "Invalid Token");
+  }
+}
+
+export async function validateUser(email: string, id?: number) {
+  const errorMessage = "unregistered email/toeken";
+  if (id) {
+    const validUser = await userRepository.findByEmailAndId(email, id);
+    if (!validUser) {
+      throwErr("unauthorized", errorMessage);
+    }
+    return validUser;
+  } else {
+    const validUser = await userRepository.findByEmail(email);
+    if (!validUser) {
+      throwErr("unauthorized", errorMessage);
+    }
+    return validUser;
+  }
+}
 
 // export function decryptString(encryptedString:string){
 //   return cryptr.decrypt(encryptedString);
@@ -44,4 +63,3 @@ export function throwErr(
 // export function encryptString(string:string){
 //   return cryptr.encrypt(string);
 // }
-
