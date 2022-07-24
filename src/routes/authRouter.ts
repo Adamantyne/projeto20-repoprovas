@@ -11,13 +11,13 @@ import { signIn, signUp } from "../controllers/authController.js";
 const authRouter = Router();
 
 authRouter.post(
-  "/signUp",
+  "/sign-up",
   schemaValidator(signUpSchema),
   signUpMiddleware,
   signUp
 );
 authRouter.post(
-  "/signIn",
+  "/sign-in",
   schemaValidator(signInSchema),
   signInMiddleware,
   signIn

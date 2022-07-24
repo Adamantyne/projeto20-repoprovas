@@ -6,8 +6,8 @@ import authServices from "../services/authServices.js";
 import { createToken } from "../utils/suportFunctions.js";
 
 export async function signIn(req:Request,res:Response) {
-    const { email, password }:User = res.locals.userData;
-    const token = createToken({ email, password });
+    const { email, id }:User = res.locals.userData;
+    const token = createToken({ email, id });
     res.status(201).send({token});
 }
 

@@ -3,26 +3,7 @@ import app from "../src/app.js";
 
 import db from "../src/config/database.js";
 import authFactory from "./factories/authFactory.js";
-
-const defaultSignUpData = {
-  email: "1@gmail.com",
-  password: "1",
-  repeatPassword: "1",
-};
-const invalidSignUpData = {
-  email: "invalid",
-  password: "",
-  repeatPassword: "",
-};
-
-const defaultSignInData = {
-  email: "1@gmail.com",
-  password: "1",
-};
-const invalidSignInData = {
-  email: "invalid",
-  password: "",
-};
+import testFactory from "./factories/testFactory.js";
 
 beforeEach(async () => {
   await db.$executeRaw`TRUNCATE TABLE users;`;
@@ -37,44 +18,72 @@ describe("geral tests", () => {
 
 describe("sign up tests", () => {
   it("should answer with status 422 when trying to create an invalid user", async () => {
-    const response = await authFactory.signUp(invalidSignUpData);
+    const response = await authFactory.signUp(authFactory.invalidSignUpData);
     expect(response.statusCode).toEqual(422);
   });
 
   it("should answer with status 201 when trying to create a valid user", async () => {
-    const response = await authFactory.signUp(defaultSignUpData);
+    const response = await authFactory.signUp(authFactory.defaultSignUpData);
     expect(response.statusCode).toEqual(201);
   });
 
   it("should answer with status 409 when trying to create a already existing user", async () => {
-    await authFactory.signUp(defaultSignUpData);
-    const response = await authFactory.signUp(defaultSignUpData);
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    const response = await authFactory.signUp(authFactory.defaultSignUpData);
     expect(response.statusCode).toEqual(409);
   });
-
-  // it("should answer with status 200 when trying to sign out with a valid token", async () => {
-  //   await authFactory.signUp(defaultEmail, defaultPassword);
-  //   let response = await authFactory.signIn(defaultEmail, defaultPassword);
-  //   const token = response.body.token;
-  //   response = await authFactory.signOut(token);
-  //   expect(response.statusCode).toEqual(200);
-  // });
 });
 
 describe("sign in tests", () => {
   it("should answer with status 422 when trying to sign in with invalid input values", async () => {
-    const response = await authFactory.signIn(invalidSignInData);
+    const response = await authFactory.signIn(authFactory.invalidSignInData);
     expect(response.statusCode).toEqual(422);
   });
 
   it("should answer with status 401 when trying to sign in with not existing user", async () => {
-    const response = await authFactory.signIn(defaultSignInData);
+    const response = await authFactory.signIn(authFactory.defaultSignInData);
     expect(response.statusCode).toEqual(401);
   });
 
   it("should answer with status 201 when trying to sign in with a valid user", async () => {
-    await authFactory.signUp(defaultSignUpData);
-    const response = await authFactory.signIn(defaultSignInData);
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    const response = await authFactory.signIn(authFactory.defaultSignInData);
     expect(response.statusCode).toEqual(201);
   });
+});
+
+describe("get/post tests", () => {
+  it("should answer with status 401 when trying to get categories without a valid token", async () => {
+    const invalidToken = "response.body.token";
+    const response = await testFactory.getCategories(invalidToken);
+    expect(response.statusCode).toEqual(401);
+  });
+
+  it("should answer with status 200 when trying to get categories with a valid token", async () => {
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.getCategories(token);
+    expect(response.statusCode).toEqual(200);
+  });
+
+  it("should answer with status 422 when trying to post a test with invalid input values", async () => {
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.postTest(token);
+    expect(response.statusCode).toEqual(422);
+  });
+
+  it("should answer with status 201 when trying to post a test with valid input values", async () => {
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.postTest(token, testFactory.defaultTestData);
+    expect(response.statusCode).toEqual(201);
+  });
+});
+
+afterAll(async () => {
+  await db.$executeRaw`DROP TABLE IF EXISTS users,categories,disciplines,teachers,"teachersDisciplines",terms,tests,"_prisma_migrations";`;
 });

@@ -1,12 +1,12 @@
 import Joi, { string } from "joi";
 import { User } from "@prisma/client";
 
-interface RepeatPassword extends User{
+interface userData extends User{
   repeatPassword: string
 }
 
-export type SignUpInput = Omit<RepeatPassword, "id">;
-export type SignInInput = Omit<User, "id">;
+export type SignUpInput = Omit<userData, "id">;
+export type SignInInput = Omit<userData, "id"|"repeatPassword">;
 
 export const signUpSchema = Joi.object<SignUpInput>({
   email: Joi.string().email().required(),

@@ -8,8 +8,8 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
+  id       Int    @id @default(autoincrement())
+  email    String @unique
   password String
 
   @@map("users")
@@ -33,12 +33,12 @@ model Term {
 
 model Discipline {
   id                Int                 @id @default(autoincrement())
-  number            Int                 @unique
+  name              String              @unique
   termId            Int
   term              Term                @relation(fields: [termId], references: [id])
   teacherDiscipline TeacherDiscipline[]
 
-  @@map("disciplinies")
+  @@map("disciplines")
 }
 
 model TeacherDiscipline {
@@ -49,12 +49,13 @@ model TeacherDiscipline {
   discipline   Discipline @relation(fields: [disciplineId], references: [id])
   test         Test[]
 
-  @@map("teachersDisciplinies")
+  @@unique([teacherId,disciplineId])
+  @@map("teachersDisciplines")
 }
 
 model Category {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
   test Test[]
 
   @@map("categories")
