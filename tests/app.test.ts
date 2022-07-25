@@ -121,4 +121,5 @@ describe("get/post tests", () => {
 
 afterAll(async () => {
   await db.$executeRaw`DROP TABLE IF EXISTS users,categories,disciplines,teachers,"teachersDisciplines",terms,tests,"_prisma_migrations";`;
+  await db.$disconnect();
 });
