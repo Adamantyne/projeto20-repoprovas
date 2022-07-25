@@ -21,15 +21,21 @@ async function getCategories(token: string) {
 async function postTest(token: string, obj?: TestInput) {
   if (obj) {
     return await supertest(app)
-      .post("/test")
+      .post("/tests")
       .send(obj)
       .set("Authorization", token);
   }
   return await supertest(app)
-    .post("/test")
+    .post("/tests")
     .send({ invalidTestData: "invalid" })
+    .set("Authorization", token);
+} 
+
+async function getTests(token: string, groupBy?: string) {
+  return await supertest(app)
+    .get(`/tests?groupBy=${groupBy}`)
     .set("Authorization", token);
 }
 
-const testFactory = { defaultTestData, getCategories, postTest };
+const testFactory = { defaultTestData, getCategories, postTest,getTests };
 export default testFactory;

@@ -82,6 +82,41 @@ describe("get/post tests", () => {
     response = await testFactory.postTest(token, testFactory.defaultTestData);
     expect(response.statusCode).toEqual(201);
   });
+
+  it("should answer with status 200 when trying to get tests group by disciplines", async () => {
+    const groupBy = "disciplines";
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.getTests(token, groupBy);
+    expect(response.statusCode).toEqual(200);
+  });
+
+  it("should answer with status 200 when trying to get tests group by teachers", async () => {
+    const groupBy = "teachers";
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.getTests(token, groupBy);
+    expect(response.statusCode).toEqual(200);
+  });
+
+  it("should answer with status 422 when trying to get tests with invalid 'groupBy' value", async () => {
+    const groupBy = "invalid";
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.getTests(token, groupBy);
+    expect(response.statusCode).toEqual(422);
+  });
+
+  it("should answer with status 422 when trying to get tests without 'groupBy' value", async () => {
+    await authFactory.signUp(authFactory.defaultSignUpData);
+    let response = await authFactory.signIn(authFactory.defaultSignInData);
+    const token: string = response.body.token;
+    response = await testFactory.getTests(token);
+    expect(response.statusCode).toEqual(422);
+  });
 });
 
 afterAll(async () => {

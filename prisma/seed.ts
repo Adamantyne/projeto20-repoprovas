@@ -31,7 +31,7 @@ async function main() {
     ],
   });
 
-  await db.teacherDiscipline.createMany({
+  await db.teacherDisciplines.createMany({
     data: [
       { teacherId: 1, disciplineId: 1 },
       { teacherId: 1, disciplineId: 2 },

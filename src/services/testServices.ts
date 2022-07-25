@@ -11,7 +11,7 @@ async function validateTestData({ teacher, discipline, category }: TestInput) {
     teacher,
     discipline
   );
-  return {categoryId,teacherDisciplineId };
+  return { categoryId, teacherDisciplineId };
 }
 
 async function categoryValidate(categoryName: string) {
@@ -57,5 +57,51 @@ async function teacherDisciplineValidate(
   return teacherDiscipline.id;
 }
 
-const testService = { validateTestData };
+async function getTests(groupByReference: string) {
+  if (groupByReference === "disciplines") {
+    return getTestsByDisciplines();
+  } else if (groupByReference === "teachers") {
+    return getTestsByTeachers();
+  } else {
+    throwErr(
+      "unprocessable_entity",
+      `value of querystring "groupBy" must be "disciplines" or "teachers"`
+    );
+  }
+}
+
+async function getTestsByDisciplines() {
+  const tests = [];
+  const terms = await testRepository.findTerms();
+
+  for (let i = 0; i < terms.length; i++) {
+    const disciplines = await testRepository.findDisciplinesByTermId(terms[i].number);
+    tests.push({ id: terms[i].id, number: terms[i].number, disciplines });
+  }
+
+  return tests;
+}
+
+async function getTestsByTeachers() {
+  //const tests = [];
+  const teacherDisciplines = await testRepository.findTeacherDisciplines();
+  return teacherDisciplines;
+
+  // for (let i = 0; i < teacherDisciplines.length; i++) {
+  //   const disciplines = await testRepository.findDisciplines(
+  //     teacherDisciplines[i].disciplineId
+  //   );
+
+  //   tests.push({
+  //     id: teacherDisciplines[i].id,
+  //     discipline: teacherDisciplines[i].discipline,
+  //     teacher: teacherDisciplines[i].teacher,
+  //     disciplines: disciplines,
+  //     tests:teacherDisciplines[i].tests
+  //   });
+  //}
+  //return tests;
+}
+
+const testService = { validateTestData, getTests };
 export default testService;

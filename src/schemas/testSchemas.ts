@@ -1,5 +1,5 @@
 import Joi, { string } from "joi";
-import { Test, TeacherDiscipline } from "@prisma/client";
+import { Test, teacherDisciplines } from "@prisma/client";
 
 interface testData extends Test {
   discipline: string;
@@ -12,7 +12,7 @@ export type TestInput = Omit<
   "id" | "teacherDisciplineId" | "categoryId"
 >;
 export type CreationTestData = Omit<Test, "id">;
-export type TeacherDisciplineObj = Omit<TeacherDiscipline, "id">;
+export type TeacherDisciplineObj = Omit<teacherDisciplines, "id">;
 
 export const postTestSchema = Joi.object<TestInput>({
   discipline: Joi.string().required(),
